@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SFES PSSA Countdown</title>
+  <style>
+    :root {
+      --maroon: #7a2525;
+      --maroon-dark: #561919;
+      --cream: #fffaf5;
+      --gold: #d7a33d;
+      --ink: #2d2525;
+      --muted: #6e6262;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(145deg, #f7eee9 0%, #fff 55%, #f3e8df 100%);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .wrap {
+      width: min(760px, 100%);
+      background: var(--card);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 18px 55px rgba(86, 25, 25, 0.16);
+      border: 1px solid rgba(122, 37, 37, 0.12);
+    }
+    .header {
+      background: linear-gradient(135deg, var(--maroon-dark), var(--maroon));
+      color: #fff;
+      text-align: center;
+      padding: 34px 24px 28px;
+    }
+    .school {
+      font-size: clamp(1rem, 2.7vw, 1.25rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.96;
+      margin-bottom: 8px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 7vw, 3.75rem);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+    .subhead {
+      margin-top: 12px;
+      font-size: clamp(1rem, 3.2vw, 1.25rem);
+      opacity: 0.9;
+    }
+    .content {
+      padding: 34px 26px 30px;
+      text-align: center;
+    }
+    .count {
+      font-size: clamp(6rem, 24vw, 11rem);
+      line-height: 0.88;
+      color: var(--maroon);
+      font-weight: 900;
+      letter-spacing: -0.07em;
+      margin: 8px 0 12px;
+    }
+    .label {
+      font-size: clamp(1.15rem, 4vw, 1.65rem);
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .date {
+      color: var(--muted);
+      font-size: 1rem;
+      margin-bottom: 28px;
+    }
+    .progress-shell {
+      width: 100%;
+      height: 16px;
+      background: #eee5df;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 6px 0 10px;
+    }
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--maroon), var(--gold));
+      border-radius: inherit;
+      transition: width .4s ease;
+    }
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .message {
+      background: var(--cream);
+      border: 1px solid #ead9cd;
+      border-radius: 18px;
+      padding: 18px 20px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--maroon-dark);
+      margin-bottom: 20px;
+    }
+    .details {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .details strong { color: var(--ink); }
+    .footer {
+      padding: 18px 24px 24px;
+      text-align: center;
+      color: #877777;
+      font-size: 0.78rem;
+    }
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .header { padding-top: 28px; }
+      .content { padding: 28px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="header">
+      <div class="school">Southern Fulton Elementary School</div>
+      <h1>PSSA Countdown</h1>
+      <div class="subhead">Every instructional day counts.</div>
+    </section>
+
+    <section class="content">
+      <div id="count" class="count">—</div>
+      <div id="label" class="label">Instructional Days Until PSSA</div>
+      <div class="date">PSSA ELA begins Monday, April 26, 2027</div>
+
+      <div class="progress-shell" aria-label="School year progress toward PSSA">
+        <div id="progress" class="progress"></div>
+      </div>
+      <div id="progressText" class="progress-text"></div>
+
+      <div id="message" class="message">Keep learning. Keep growing. Keep showing what you know!</div>
+
+      <div class="details">
+        Weekends and scheduled no-school days are not counted.<br>
+        <strong>Act 80 days and early dismissal days do count toward the countdown.</strong><br>
+        Calendar changes or weather make-up days may require an update to this page.
+      </div>
+    </section>
+
+    <div class="footer">Based on the Southern Fulton School District 2026-2027 school calendar.</div>
+  </main>
+
+  <script>
+    // PSSA ELA begins April 26, 2027. The countdown shows remaining
+    // instructional days BEFORE testing begins, so April 26 displays 0.
+    const firstStudentDay = new Date(2026, 7, 19); // Aug. 19, 2026
+    const pssaStart = new Date(2027, 3, 26);        // Apr. 26, 2027
+
+    // Scheduled days excluded from this PSSA countdown, based on the
+    // 2026-2027 Southern Fulton School District calendar. Act 80 days
+    // are intentionally NOT excluded and therefore count toward PSSA.
+    const noSchoolDates = new Set([
+      '2026-09-07',
+      '2026-10-16',
+      '2026-11-11', '2026-11-26', '2026-11-27', '2026-11-30',
+      '2026-12-01', '2026-12-23', '2026-12-24', '2026-12-25',
+      '2026-12-28', '2026-12-29', '2026-12-30', '2026-12-31',
+      '2027-01-01', '2027-01-18',
+      '2027-02-12', '2027-02-15',
+      '2027-03-25', '2027-03-26', '2027-03-29', '2027-03-30'
+    ]);
+
+    function ymd(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function isInstructionalDay(d) {
+      const dow = d.getDay();
+      return dow !== 0 && dow !== 6 && !noSchoolDates.has(ymd(d));
+    }
+
+    function startOfDay(d) {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function countInstructionalDaysAfter(date, endExclusive) {
+      let count = 0;
+      let d = startOfDay(date);
+      d.setDate(d.getDate() + 1);
+      while (d < endExclusive) {
+        if (isInstructionalDay(d)) count++;
+        d.setDate(d.getDate() + 1);
+      }
+      return count;
+    }
+
+    function countInstructionalDaysInRange(startInclusive, endExclusive) {
+      let count = 0;
+      let d = startOfDay(startInclusive);
+      while (d < endExclusive) {
+        if (isInstructionalDay(d)) count++;
+        d.setDate(d.getDate() + 1);
+      }
+      return count;
+    }
+
+    function updateCountdown() {
+      const today = startOfDay(new Date());
+      const countEl = document.getElementById('count');
+      const labelEl = document.getElementById('label');
+      const messageEl = document.getElementById('message');
+      const progressEl = document.getElementById('progress');
+      const progressTextEl = document.getElementById('progressText');
+
+      const total = countInstructionalDaysInRange(firstStudentDay, pssaStart);
+
+      if (today >= pssaStart) {
+        countEl.textContent = '0';
+        labelEl.textContent = 'PSSA Is Here!';
+        messageEl.textContent = 'You are ready. Do your best and show what you know!';
+        progressEl.style.width = '100%';
+        progressTextEl.textContent = 'PSSA testing has begun.';
+        return;
+      }
+
+      if (today < firstStudentDay) {
+        const remaining = total;
+        countEl.textContent = remaining;
+        progressEl.style.width = '0%';
+        progressTextEl.textContent = 'The school-year countdown begins August 19.';
+        return;
+      }
+
+      const remaining = countInstructionalDaysAfter(today, pssaStart);
+      const elapsed = Math.max(0, total - remaining);
+      const pct = Math.max(0, Math.min(100, (elapsed / total) * 100));
+
+      countEl.textContent = remaining;
+      labelEl.textContent = remaining === 1 ? 'Instructional Day Until PSSA' : 'Instructional Days Until PSSA';
+      progressEl.style.width = pct.toFixed(1) + '%';
+      progressTextEl.textContent = `${Math.round(pct)}% of our instructional-day journey to PSSA is complete.`;
+
+      if (remaining <= 10) {
+        messageEl.textContent = 'The finish line is close — stay focused and keep giving your best!';
+      } else if (remaining <= 30) {
+        messageEl.textContent = 'We are getting close! Keep practicing, growing, and believing in yourself.';
+      } else if (remaining <= 75) {
+        messageEl.textContent = 'Every lesson matters. Every day is another chance to grow.';
+      }
+    }
+
+    updateCountdown();
+  </script>
+</body>
+</html>
